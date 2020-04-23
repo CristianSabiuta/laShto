@@ -1,110 +1,235 @@
 <div id="readme" class="Box-body readme blob js-code-block-container">
-  <article class="markdown-body entry-content p-3 p-md-6" itemprop="text"><p><a href="https://www.microchip.com" rel="nofollow"><img src="https://camo.githubusercontent.com/5fb5505f69a28ff407841612dfe2b7004f210594/68747470733a2f2f636c6475702e636f6d2f553071684c7742696a462e706e67" alt="MCHP" data-canonical-src="https://cldup.com/U0qhLwBijF.png" style="max-width:100%;"></a></p>
+ <article class="markdown-body entry-content p-3 p-md-6" itemprop="This needs to locked down and 'never' changed"><p><a href="https://www.microchip.com" rel="nofollow"><img src="images/Microchip.png" alt="MCHP" width="300";"></a></p>
 
-# PIC16F18446 Matrix RGB
+# Using 10-bit DAC for Generating Analog Signals
 
-## Objective:
-Using the PIC16F18446 to control the 32x32 RGB LED matrix via the Matrix RGB Click board. A text message scrolls on the RGB display.
+This repository contains examples of bare metal source code for DAC as described in [*TB3235 - Using 10-Bit DAC for Generating Analog Signals*](https://www.microchip.com/wwwappnotes/appnotes.aspx?appnote=en1001655) document from Microchip. The repository contains an Atmel Studio Solution (*AVR-DA128_DAC_Examples.atsln*) with four projects inside, one project for each illustrated use case.
 
-## Demo Configuration:
-The default text is "Welcome to Microchip !". The text message can be updated via UART, by simply sending a new string, ending in '\n'. The PIC's EUSART is configured to use the 9600 baud rate, but that can easily be changed from MCC settings.
 
-The MCU uses the high frequency internal oscilator (HFINTOSC), and the clock is set to 32 MHz. Watchdog Timer is not used in this demo, so it is disabled.
+Use cases:
+1. Generating Constant Analog Signal Using 10-Bit DAC (*Generating_Constant_Signal_Example* project)
+ - *Use case description:* Initialize the DAC, set the 2.048V internal voltage reference for the DAC peripheral, set the DAC to output a specific constant voltage.
+ - *Result:* A 1.2V constant analog signal will be available on the DAC output external pin (PD6).
 
-MCC configurations - System Module (Internal Oscillator and WWDT)
+2. Generating Sine Wave Signal Using 10-Bit DAC (*Generating_Sine_Wave_Signal_Example* project)
+ - *Use case description:* Initialize the DAC, set the 2.048V internal voltage reference for the DAC peripheral, set the DAC to output in a loop the samples of a sine wave.
+ - *Result:* A 100Hz sine wave will be available on the DAC output external pin (PD6).
 
-* Oscillator Select: HFINTOSC
-* HF Internal Clock: 32_MHz
-* Clock Divider: 1
-* Watchdog Timer Enable: WDT Disabled, SWDTEN is ignored
+ 3. Reading the DAC Internally with the ADC (*Reading_DAC_with_ADC_Example* project)
+ - *Use case description:* Initialize the DAC and ADC, set the DAC peripheral as input for the ADC, set the 2.048V internal voltage reference for the DAC and ADC peripherals, increment the DAC output and read it with the ADC for each step.
+ - *Result:* The value read by the ADC will modify according to the changes of the DAC input value.
 
-The settings are presented in the figure below.
+  4. Generating Amplitude Modulated Signal Using 10-Bit DAC (*Generate_Amplitude_Modulated_Signal_Example* project)
+ - *Use case description:* Initialize the DAC with external voltage reference and link the signal that must be modulated to the external reference pin (PD7). The AVR core will continuously change the Data (DACn.DATA) register to create a modulated signal.
+ - *Result:* The resulting modulated signal will be available on the DAC output external pin (PD6).
 
-<img src="images/SystemModule_Settings.png" alt="System Module Settings"/>
+## Related Documentation
+More details and code examples on the AVR128DA48 can be found at the following links:
+- [TB3235 - Using 10-Bit DAC for Generating Analog Signals](https://www.microchip.com/wwwappnotes/appnotes.aspx?appnote=en1001655)
+- [AVR128DA48 Product Page](https://www.microchip.com/wwwproducts/en/AVR128DA48)
+- [AVR128DA48 Code Examples on GitHub](https://github.com/microchip-pic-avr-examples?q=avr128da48)
+- [AVR128DA48 Project Examples in START](https://start.atmel.com/#examples/AVR128DA48CuriosityNano)
 
-MSSP1 is used for communicating with the Matrix RGB Click board. It is set to SPI Master, with input data sampled at middle, SPI Mode 0, and 8 MHz clock.
 
-MCC configurations - MSSP1 Settings
+## Software Used
+- Atmel Studio 7.0.2397 or newer [(microchip.com/mplab/avr-support/atmel-studio-7)](https://www.microchip.com/mplab/avr-support/atmel-studio-7)
+- AVR-Dx 1.0.18 or newer Device Pack
 
-* Serial Protocol: SPI
-* Mode: Master
-* SPI Mode: SPI Mode 0
-* Input Data Sampled at: Middle
-* Clock Source: FOSC/4
 
-The settings are presented in the figure below.
+## Hardware Used
+- AVR128DA48 Curiosity Nano [(DM164151)](https://www.microchip.com/Developmenttools/ProductDetails/DM164151)
 
-<img src="images/MSSP_Settings.JPG" alt="MSSP Settings"/>
+## Setup for Use Case #1
+**Generating Constant Analog Signal Using 10-Bit DAC**
 
-EUSART1 is used to receive the input text string that is to be displayed on the RGB Matrix. It is set to asynchronous mode (UART), with 9600 baud rate, and a software receive buffer of 64 Bytes.
+The AVR128DA48 Curiosity Nano Development Board is used as test platform.
+<br><img src="images/AVR128DA48_CNANO_instructions.PNG" width="700">
 
-MCC configurations - EUSART1 Settings
+<br>The following configurations must be made for this project:
 
-* Mode: Asynchronous
-* Enable EUSART: checked
-* Baud Rate: 9600
-* Enable Transmit: checked
-* Transmission Bits: 8-bit
-* Reception Bits: 8-bit
-* Data Polarity: Non-Inverted
-* Enable Receive: checked
-* Enable EUSART Interrupts: checked
-* Software Transmit Buffer Size: 8
-* Software Receive Buffer Size: 64
+VREF:
+  - Select the 2.048V internal voltage reference for the DAC peripheral
+  - Set the Voltage Reference in Always On mode
 
-The settings are presented in the figure below.
+DAC0:
+ - Enable DAC
+ - Enable the output buffer
+ - Enable Run in Standby mode
+ - Disable digital input buffer and the pull-up resistor for the DAC output external pin (PD6)
 
-<img src="images/EUSART_Settings.png" alt="EUSART Settings"/>
 
-MCC configurations - Pin Manager Settings
+## Operation for Use Case #1
+**Generating Constant Analog Signal Using 10-Bit DAC**
+1. Connect the board to the PC.
 
-The pins are configured as follows:
+2. Open the *AVR-DA128_DAC_Examples.atsln* solution in Atmel Studio
 
-* EUSART1 RX is connected to RC0
-* EUSART1 TX is connected to RC1
-* MSSP1 SCK is connected to RB6
-* MSSP1 SDI is connected to RB4
-* MSSP1 SDO is connected to RC7
-* Matrix RGB RDY is connected to GPIO input RA2
-* Matrix RGB RST is connected to GPIO output RA4
-* Matrix RGB SLP is connected to GPIO output RC5
-* Matrix RGB CS is connected to GPIO output RC6
+3. Set *Generating_Constant_Signal_Example* project as StartUp project:
+<br><img src="images/AVR-DA_DAC_use_case_1_project.png" width="500">
 
-The settings are presented in the figure below.
+4. Build the *Generating_Constant_Signal_Example* project: right click on *Generating_Constant_Signal_Example* and select Build
+<br><img src="images/AVR-DA_DAC_use_case_1_build.png" width="500">
 
-<img src="images/PinModule_Settings.png" alt="Pin Module Settings"/>
-<img src="images/PinManager_Settings.png" alt="Pin Manager Settings"/>
+5. Select the AVR128DA48 Curiosity Nano on-board debugger in the *Tool* section of the *AVR-Dx_Bootloader* project settings:
+  - Right click on the project and click *Properties*;
+  - Click *Tool* tab on the left panel, select the corresponding debugger and save the configuration (Ctrl + S)
+<br><img src="images/AVR-DA_DAC_use_case_1_tool_settings.png" width="500">
 
-The prototype demo is presented in the picture below.
 
-<img src="images/MatrixRGB_Setup.jpg" alt="Hardware Setup" height="500"/>
+6. Program *Generating_Constant_Signal_Example* project to the board: select *Generating_Constant_Signal_Example* project and click *Start Without Debugging*:
+<br><img src="images/AVR-DA_DAC_use_case_1_program.png" width="500">
 
-## Demo Usage:
 
-1. Plug the PIC16F18446 MCU into its socket on the Curiosity board
-2. Plug the Matrix RGB click into the mikroBUS slot of the Curiosity board
-3. Connect the 32x32 RGB Matrix INPUT to the Matrix RGB Click using the gray ribbon cable (red wire to the triangle mark)
-4. Connect the power cable to its connector on the back of the RGB Matrix
-5. After making the above hardware connections power the RGB Matrix using the 5V/3A DC adapter, and the Curiosity board using the USB cable.
-6. Build demo firmware and load the generated hex file onto the PIC16F18446 MCU. When the demo firmware is loaded, the "Welcome to Microchip !" text starts scrolling on the RGB Matrix.
-7. The text string can be changed via UART. For this, an USB to UART adapter can be used. Its GND must be connected to the GND on Curiosity, and its TX must be connected to the RX (pin RC0) on Curiosity. Then a terminal program can be used for entering the text. The sent text must end with the LF ('\n') character.
+<br>**Results**
 
-## Required Tools:
 
-Hardware tools:
+## Setup for Use Case #2
 
-* PIC16F18446 (20-pin, PDIP) MCU
-* The Curiosity development board
-* 32x32 RGB Matrix display
-* The Matrix RGB click board from MikroElektronika™
+**Generating Sine Wave Signal Using 10-Bit DAC**
 
-Software tools:
+The AVR128DA48 Curiosity Nano Development Board is used as test platform.
+<br><img src="images/AVR128DA48_CNANO_instructions.PNG" width="700">
 
-* MPLAB® X IDE v5.30
-* MPLAB® Code Configurator (Plugin) v3.95
-* XC8® Compiler v2.10
-* Microcontrollers and peripherals Library v1.79
+<br>The following configurations must be made for this project:
 
-## Conclusion:
+VREF:
+  - Select the 2.048V internal voltage reference for the DAC peripheral
+  - Set the Voltage Reference in Always On mode
 
-This example shows how easy it is to use the PIC16F18446 and MCC to control the 32x32 RGB Matrix and display a scrolling text.
+DAC0:
+ - Enable DAC
+ - Enable the output buffer
+ - Enable Run in Standby mode
+ - Disable digital input buffer and the pull-up resistor for the DAC output external pin (PD6)
+
+## Operation for Use Case #2
+**Generating Sine Wave Signal Using 10-Bit DAC**
+1. Connect the board to the PC.
+
+2. Open the *AVR-DA128_DAC_Examples.atsln* solution in Atmel Studio
+
+3. Set *Generating_Sine_Wave_Signal_Example* project as StartUp project:
+<br><img src="images/AVR-DA_DAC_use_case_2_project.png" width="500">
+
+4. Build the *Generating_Sine_Wave_Signal_Example* project: right click on *Generating_Sine_Wave_Signal_Example* and select Build
+<br><img src="images/AVR-DA_DAC_use_case_2_build.png" width="500">
+
+5. Select the AVR128DA48 Curiosity Nano on-board debugger in the *Tool* section of the *Generating_Sine_Wave_Signal_Example* project settings:
+  - Right click on the project and click *Properties*;
+  - Click *Tool* tab on the left panel, select the corresponding debugger and save the configuration (Ctrl + S)
+<br><img src="images/AVR-DA_DAC_use_case_2_tool_settings.png" width="500">
+
+
+6. Program *Generating_Sine_Wave_Signal_Example* project to the board: select *Generating_Sine_Wave_Signal_Example* project and click *Start Without Debugging*:
+<br><img src="images/AVR-DA_DAC_use_case_2_program.png" width="500">
+
+
+<br>**Results**
+
+
+
+## Setup for Use Case #3
+
+**Reading the DAC Internally with the ADC**
+
+The AVR128DA48 Curiosity Nano Development Board is used as test platform.
+<br><img src="images/AVR128DA48_CNANO_instructions.PNG" width="700">
+
+<br>The following configurations must be made for this project:
+
+VREF:
+  - Select the 2.048V internal voltage reference for the DAC peripheral
+  - Select the 2.048V internal voltage reference for the ADC peripheral
+  - Set the Voltage References in Always On mode
+
+DAC0:
+ - Enable DAC
+
+ADC0:
+ - Enable ADC
+ - Select 12-bit resolution
+ - Select DIV2 prescaler
+ - Set the DAC peripheral as input for the ADC
+
+## Operation for Use Case #3
+**Reading the DAC Internally with the ADC**
+1. Connect the board to the PC.
+
+2. Open the *AVR-DA128_DAC_Examples.atsln* solution in Atmel Studio
+
+3. Set *Reading_DAC_with_ADC_Example* project as StartUp project:
+<br><img src="images/AVR-DA_DAC_use_case_3_project.png" width="500">
+
+4. Build the *Reading_DAC_with_ADC_Example* project: right click on *Reading_DAC_with_ADC_Example* and select Build
+<br><img src="images/AVR-DA_DAC_use_case_3_build.png" width="500">
+
+5. Select the AVR128DA48 Curiosity Nano on-board debugger in the *Tool* section of the *Reading_DAC_with_ADC_Example* project settings:
+  - Right click on the project and click *Properties*;
+  - Click *Tool* tab on the left panel, select the corresponding debugger and save the configuration (Ctrl + S)
+<br><img src="images/AVR-DA_DAC_use_case_3_tool_settings.png" width="500">
+
+
+6. Program *Reading_DAC_with_ADC_Example* project to the board: select *Reading_DAC_with_ADC_Example* project and click *Start Without Debugging*:
+<br><img src="images/AVR-DA_DAC_use_case_3_program.png" width="500">
+
+
+<br>**Results**
+<br>Theoretical results for dacVal = 100
+<br><img src="images/AVR-DA_DAC_use_case_3_results_1.png" width="500">
+<br>Practical results for dacVal = 100 using Debug Mode
+<br><img src="images/AVR-DA_DAC_use_case_3_results_2.png" width="500">
+
+## Setup for Use Case #4
+
+**Generating Amplitude Modulated Signal Using 10-Bit DAC**
+
+The AVR128DA48 Curiosity Nano Development Board is used as test platform.
+<br><img src="images/AVR128DA48_CNANO_instructions.PNG" width="700">
+
+<br>The following configurations must be made for this project:
+
+VREF:
+  - Select the external voltage reference on VREFA pin (PD7) for the DAC peripheral
+  - Set the Voltage Reference in Always On mode
+
+DAC0:
+ - Enable DAC
+ - Enable the output buffer
+ - Enable Run in Standby mode
+ - Disable digital input buffer and the pull-up resistor for the DAC output external pin (PD6)
+
+|Pin           | Configuration      |
+| :----------: | :----------------: |
+|PD7 (VREFA)   | Analog Input       |
+
+## Operation for Use Case #4
+**Generating Amplitude Modulated Signal Using 10-Bit DAC**
+1. Connect the board to the PC.
+
+2. Open the *AVR-DA128_DAC_Examples.atsln* solution in Atmel Studio
+
+3. Set *Generate_Amplitude_Modulated_Signal_Example* project as StartUp project:
+<br><img src="images/AVR-DA_DAC_use_case_4_project.png" width="500">
+
+4. Build the *Generate_Amplitude_Modulated_Signal_Example* project: right click on *Generate_Amplitude_Modulated_Signal_Example* and select Build
+<br><img src="images/AVR-DA_DAC_use_case_4_build.png" width="500">
+
+5. Select the AVR128DA48 Curiosity Nano on-board debugger in the *Tool* section of the *Generate_Amplitude_Modulated_Signal_Example* project settings:
+  - Right click on the project and click *Properties*;
+  - Click *Tool* tab on the left panel, select the corresponding debugger and save the configuration (Ctrl + S)
+<br><img src="images/AVR-DA_DAC_use_case_4_tool_settings.png" width="500">
+
+
+6. Program *Generate_Amplitude_Modulated_Signal_Example* project to the board: select *Generate_Amplitude_Modulated_Signal_Example* project and click *Start Without Debugging*:
+<br><img src="images/AVR-DA_DAC_use_case_4_program.png" width="500">
+
+
+<br>**Results**
+<br>External Analog Signal (information signal) on VREFA (PD7) pin - Channel 1 (orange) in the screenshot below
+<br>Amplitude Modulated Signal on PD6 - Channel 2 (blue) in the screenshots below
+<br><img src="images/AVR-DA_DAC_use_case_4_results_1.jpg" width="500">
+<br><img src="images/AVR-DA_DAC_use_case_4_results_2.jpg" width="500">
+
+
+## Summary
+The [*TB3235 - Using 10-Bit DAC for Generating Analog Signals*](https://www.microchip.com/wwwappnotes/appnotes.aspx?appnote=en1001655) document provides four use cases for generating analog signals using the 10-bit DAC.
