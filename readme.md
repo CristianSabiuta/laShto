@@ -1,11 +1,10 @@
 <a href="https://www.microchip.com" rel="nofollow"><img src="images/Microchip.png" alt="MCHP" width="300"/></a>
 
-# AVR128DA48 RTC with OLED Click Code Example
+# AVR128DA48 I2C Send Receive Code Example
 
-This repository provides an Atmel Studio solution with a bare metal code example for an RTC implementation.
-This example implements a desktop clock built using the AVR-DA's RTC and an OLED Click.
-The clock can be set to the correct time through the use of the on-board user button connected to PC7 (on-board SW0).
-Long pressing (at least 1 second) SW0 will switch between seconds, minutes and hours to be changed and short pressing SW0 will increase the value of the selected time unit.
+This repository provides an Atmel Studio solution with a bare metal code example for a basic I2C communication. 
+This example demonstrates the basic functionality of the TWI peripheral with a basic I2C communication.
+The device is connected to a digital potentiometer which communicates through an I2C interface. The device sends read commands to the I2C address of the potentiometer. Two read operations are required every iteration since the potentiometer has a 12 bit resolution.
 
 ## Related Documentation
 More details and code examples on the AVR128DA48 can be found at the following links:
@@ -26,67 +25,33 @@ The AVR128DA48 Curiosity Nano Development Board is used as test platform
 
 The following configurations must be made for this project:
 
-RTC:
-  - RTC Clock
-  - Input clock 32 kHz / 32
-  - Overflow interrupt enabled 
-  - Period 0x3c4
-
-TCB0:
-  - Input clock main clock (16MHz) / 2 (from prescaler)
-  - Period: 0x1d4c
-  - Overflow interrupt enabled
-
-SPI0:
-  - SPI Master Polled mode
-  - Input clock main clock (16MHz) / 4 (prescaler)
-  - MISO - PA5
-  - MOSI - PA4
-  - SCK - PA6
-
-OLEDC_Click:
-  - SPI Master
-  - CS pin - PA7 
-  - DC pin-  PD0
-  - EN pin - PD6
-  - RST pin - PD7
-  - RW pin - PD3
-
-CPUINT:
-  - Global interrupts enabled
-
-|Pin            | Configuration                              |
-| :-----------: | :----------------------------------------: |
-|PA4 (MOSI)     | Digital Output                             |
-|PA5 (MISO)     | Digital Input (internal pull-up disabled)  |
-|PA6 (SCK)      | Digital Output                             |
-|PA7 (OLED CS)  | Digital Output                             |
-|PC7 (SW0)      | Digital Input (internal pull-up enabled)   |
-|PD0 (OLED DC)  | Digital Output                             |
-|PD3 (OLED RW)  | Digital Output                             |
-|PD6 (OLED EN)  | Digital Output                             |
-|PD7 (OLED RST) | Digital Output                             |
+TWI0:
+  - Configured in Master mode 
+  - Baud rate 100000
+  - Using default pins (PA2 - SDA, PA3 - SCL)
+  - Idle bus state
+  - Enable
 
 ## Operation
 
-1. Open the *avr128da48_RTC_OLED_example.atsln* solution in Atmel Studio
+1. Open the *I2C_example.atsln* solution in Atmel Studio
 
-2. Build the solution: right click on *avr128da48_RTC_OLED_example* solution and select Build
-<br><img src="images/AVR-DA_RTC_OLED_build.png" width="500">
+2. Build the solution: right click on *I2C_example* solution and select Build
+<br><img src="images/AVR-DA_I2C_build.png" width="500">
 
 3. Select the AVR128DA48 Curiosity Nano on-board debugger in the *Tool* section of the project settings:
 - Right click on the project and click *Properties*;
 - Click *Tool* tab on the left panel, select the corresponding debugger and save the configuration (Ctrl + S)
-<br><img src="images/AVR-DA_RTC_OLED_tool_settings.png" width="500">
+<br><img src="images/AVR-DA_I2C_tool_settings.png" width="500">
 
 
-4. Program the project to the board: select *avr128da48_RTC_OLED_example* project and click *Start Without Debugging*:
-<br><img src="images/AVR-DA_RTC_OLED_program.png" width="500">
+4. Program the project to the board: select *I2C_example* project and click *Start Without Debugging*:
+<br><img src="images/AVR-DA_I2C_program.png" width="500">
 
 Demo:
 
 
 ## Summary
 
-This example represents a implementation of a desktop clock built using the AVR-DA's RTC and an OLED Click. The clock can be set to the correct time through the use of the on-board user button connected to PC7 (on-board SW0).
- 
+This example represents a basic functionality of the TWI peripheral for a basic I2C communication.
+The device reads the value from a digital potentiometer which communicates through an I2C interface.
